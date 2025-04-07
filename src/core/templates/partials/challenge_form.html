@@ -1,0 +1,13 @@
+<form
+    hx-post="{% url 'add_challenge' %}"
+    hx-target="#challenge-list"
+    hx-swap="outerHTML"
+    class="bg-white p-4 rounded-lg shadow-md mt-4"
+>
+    {% csrf_token %}
+    {{ form.as_p }}  <!--  Affichage automatique des champs du formulaire -->
+
+    <button class="bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600 transition">
+        Ajouter le défi
+    </button>
+</form>

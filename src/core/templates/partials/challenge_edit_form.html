@@ -1,0 +1,13 @@
+<form
+    hx-post="{% url 'update_challenge' challenge.id %}"
+    hx-target="#challenge-list"
+    hx-swap="outerHTML"
+    class="bg-white p-4 rounded-lg shadow-md mt-4"
+>
+    {% csrf_token %}
+    {{ form.as_p }}
+
+    <button class="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition">
+        Modifier le défi
+    </button>
+</form>

@@ -23,6 +23,7 @@ class Challenge(models.Model):
     description = models.TextField()
     completed = models.BooleanField(default=False)  # Si le défi est terminé ou non
     status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='pending')
+    duration = models.IntegerField(default=0)
     deadline = models.DateTimeField(null=True, blank=True)
     priority = models.CharField(
         max_length=10,
