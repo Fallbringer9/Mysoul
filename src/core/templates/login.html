@@ -1,10 +1,66 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Title</title>
-</head>
-<body>
+{% extends 'base.html' %}
 
-</body>
-</html>
+{% block title %}Connexion - MySoul{% endblock %}
+
+{% block content %}
+<div class="w-full max-w-md mx-auto mt-20 bg-white p-8 rounded-xl shadow-md animate-fade-in-up">
+
+    <h2 class="text-2xl font-bold mb-6 text-center text-green-700">Connexion à MySoul</h2>
+
+    <form id="login-form" class="space-y-6">
+        <div>
+            <label for="username" class="block text-sm font-medium text-green-800">Nom d'utilisateur</label>
+            <input type="text" id="username" name="username" required
+                   class="mt-1 block w-full border border-green-300 rounded-md p-2 shadow-sm focus:ring-green-400 focus:border-green-400">
+        </div>
+
+        <div>
+            <label for="password" class="block text-sm font-medium text-green-800">Mot de passe</label>
+            <input type="password" id="password" name="password" required
+                   class="mt-1 block w-full border border-green-300 rounded-md p-2 shadow-sm focus:ring-green-400 focus:border-green-400">
+        </div>
+
+        <button type="submit"
+                class="w-full bg-green-500 hover:bg-green-600 text-white py-2 px-4 rounded-lg transition">
+            Se connecter
+        </button>
+    </form>
+
+    <div id="login-error" class="text-red-600 mt-4 hidden text-sm text-center">
+        Identifiants invalides. Veuillez réessayer.
+    </div>
+
+    <p class="mt-6 text-center text-sm text-green-800">
+        Pas encore inscrit ?
+        <a href="{% url 'register' %}" class="underline hover:text-green-600 transition">Créer un compte</a>
+    </p>
+</div>
+
+<script>
+    document.getElementById("login-form").addEventListener("submit", async function(e) {
+        e.preventDefault();
+
+        const username = e.target.username.value;
+        const password = e.target.password.value;
+
+        const response = await fetch("/api/token/", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "X-CSRFToken": document.querySelector('meta[name="csrf-token"]').content
+            },
+            body: JSON.stringify({ username, password })
+        });
+
+        if (response.ok) {
+            const data = await response.json();
+            localStorage.setItem("access_token", data.access);
+            localStorage.setItem("refresh_token", data.refresh);
+            window.location.href = "/dashboard/";
+        } else {
+            document.getElementById("login-error").classList.remove("hidden");
+        }
+    });
+</script>
+{% endblock %}
+

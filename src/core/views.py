@@ -1,8 +1,10 @@
 from django.db.models import Avg
 from django.http import HttpResponse, JsonResponse
-from django.shortcuts import render, get_object_or_404
+from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth.decorators import login_required
+from django.views.decorators.http import require_http_methods
 
+from accounts.models import Profile
 from challenges.forms import ChallengeForm
 from journal.models import JournalEntry
 from challenges.models import Challenge
@@ -93,5 +95,61 @@ def update_challenge(request, challenge_id):
     # Retourner la liste mise à jour
     challenges = Challenge.objects.filter(user=request.user)
     return render(request, "partials/challenges.html", {"challenges": challenges})
+
+@login_required
+def profile_view(request):
+    user = request.user
+    profile = get_object_or_404(Profile, user=user)
+
+    return render(request, "profile.html", {
+        "user": user,
+        "profile": profile
+    })
+
+
+@login_required
+@require_http_methods(["GET", "POST"])
+def edit_profile(request):
+    profile = get_object_or_404(Profile, user=request.user)
+
+    if request.method == "POST":
+        email = request.POST.get("email")
+        avatar = request.FILES.get("avatar")
+
+        if email:
+            request.user.email = email
+            request.user.save()
+
+        if avatar:
+            profile.avatar = avatar
+            profile.save()
+
+        return redirect("profile")
+
+    return render(request, "profile_edit.html", {
+        "user": request.user,
+        "profile": profile
+    })
+
+@require_http_methods(["POST"])
+@login_required
+def deactivate_account(request):
+    user = request.user
+    user.is_active = False
+    user.save()
+    return redirect("login")
+
+@login_required
+@require_http_methods(["GET"])
+def confirm_deactivate_account_view(request):
+    return render(request, "confirm_deactivation.html")
+
+@login_required
+@require_http_methods(["POST"])
+def deactivate_account(request):
+    user = request.user
+    user.is_active = False
+    user.save()
+    return redirect("login")
 
 

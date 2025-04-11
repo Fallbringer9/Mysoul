@@ -9,6 +9,8 @@ from journal.views import AdvancedStatsView, JournalEntryViewSet
 from payments.views import create_checkout_session
 from challenges.views import ChallengeViewSet, FreeChallengeViewSet
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
+from core.views import delete_challenge
+
 
 # DRF Router
 router = DefaultRouter()
@@ -27,6 +29,8 @@ urlpatterns = [
     path('me/', UserProfileView.as_view(), name='user-profile'),
     path('reactivate/', UserProfileView.as_view(), name='reactivate'),
     path('stats/advanced/', AdvancedStatsView.as_view(), name='advanced-stats'),
+    path('challenges/delete/<int:challenge_id>/', delete_challenge, name='delete_challenge'),
+
 
     # Paiements avec Stripe
     path("create-checkout-session/", create_checkout_session, name="create_checkout_session"),

@@ -1,10 +1,39 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Title</title>
-</head>
-<body>
+{% extends 'base.html' %}
 
-</body>
-</html>
+{% block title %}Profil - MySoul{% endblock %}
+
+{% block content %}
+<div class="w-full max-w-2xl mx-auto mt-20 bg-white p-8 rounded-xl shadow-md animate-fade-in-up">
+
+    <h2 class="text-2xl font-bold mb-6 text-center text-green-700">Mon profil</h2>
+
+    <div class="mb-6 space-y-2">
+        <p class="text-green-900"><strong>Nom d'utilisateur :</strong> {{ user.username }}</p>
+        <p class="text-green-900"><strong>Email :</strong> {{ user.email }}</p>
+    </div>
+
+    {% if user.profile.is_premium %}
+        <div class="p-4 bg-green-100 text-green-800 rounded-lg shadow-inner mb-6">
+            Tu es membre <strong>Premium</strong> jusqu’au {{ user.profile.premium_expiration_date|date:"d/m/Y" }}.
+        </div>
+    {% else %}
+        <div class="p-4 bg-yellow-100 text-yellow-800 rounded-lg shadow-inner mb-6">
+            Tu es actuellement en version <strong>gratuite</strong>.
+        </div>
+    {% endif %}
+
+    <div class="flex justify-between items-center">
+        <a href="{% url 'dashboard' %}" class="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg transition">
+            Retour au dashboard
+        </a>
+
+        <form action="{% url 'deactivate_account' %}" method="POST">
+            {% csrf_token %}
+            <button type="submit" class="text-red-500 hover:underline text-sm">
+                Désactiver mon compte
+            </button>
+        </form>
+    </div>
+</div>
+{% endblock %}
+

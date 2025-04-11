@@ -1,40 +1,65 @@
-
-
 <!DOCTYPE html>
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-token" content="{{ csrf_token }}">
     <title>{% block title %}MySoul{% endblock %}</title>
 
-    <!-- Intégration de Tailwind via JavaScript -->
+    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
 
-    <!-- Intégration de HTMX -->
+    <!-- HTMX -->
     <script src="https://unpkg.com/htmx.org@1.9.4"></script>
 </head>
-<body class="bg-gray-100 text-gray-900 flex flex-col min-h-screen">
+<body class="bg-[#fdf6ec] text-green-900 font-sans flex flex-col min-h-screen">
 
-    <!-- Navbar modernisée -->
+    <!-- Navbar -->
     <nav class="bg-white shadow-md py-4 px-6 flex justify-between items-center">
-        <a href="{% url 'home' %}" class="text-xl font-bold">MySoul</a>
-        <div class="space-x-6">
-            <a href="{% url 'home' %}" class="hover:text-blue-500">Accueil</a>
-            <a href="{% url 'dashboard' %}" class="hover:text-blue-500">Dashboard</a>
-            <a href="{% url 'profile' %}" class="hover:text-blue-500">Profil</a>
+        <a href="{% url 'home' %}" class="text-2xl font-bold text-green-700">MySoul</a>
+        <div class="space-x-6 text-green-800">
+            <a href="{% url 'home' %}" class="hover:text-green-600 transition">Accueil</a>
+            <a href="{% url 'dashboard' %}" class="hover:text-green-600 transition">Dashboard</a>
+            <a href="{% url 'profile' %}" class="hover:text-green-600 transition">Profil</a>
         </div>
     </nav>
 
     <!-- Contenu principal -->
-    <main class="flex-grow container mx-auto p-6">
+    <main class="flex-grow container mx-auto p-6 animate-fade-in-up">
         {% block content %}{% endblock %}
     </main>
 
-    <script>
-    document.addEventListener("htmx:afterRequest", function(evt) {
-        console.log("HTMX Request Sent!", evt);
-    });
-</script>
+    <!-- Footer -->
+    <footer class="text-center text-green-800 text-sm p-4 mt-auto">
+        &copy; {{ year|default:2025 }} - MySoul. Prends soin de toi.
+    </footer>
 
-    <!-- Footer modernisé -->
-    <footer class="text-center text-gray-600 p-4
+    <!-- HTMX CSRF support -->
+    <script>
+        document.body.addEventListener('htmx:configRequest', (event) => {
+            const token = document.querySelector('meta[name="csrf-token"]').content;
+            event.detail.headers['X-CSRFToken'] = token;
+        });
+    </script>
+
+    <!-- Animation -->
+    <style>
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .animate-fade-in-up {
+            animation: fadeInUp 1s ease-out;
+        }
+    </style>
+
+</body>
+</html>
+

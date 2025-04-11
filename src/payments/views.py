@@ -2,6 +2,7 @@
 
 import stripe
 from django.conf import settings
+from django.shortcuts import render
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
@@ -40,7 +41,7 @@ def create_checkout_session(request):
                 "quantity": 1,
             }],
             mode="subscription",
-            success_url= "http://127.0.0.1:8000/api/payment-success/",
+            success_url= "http://127.0.0.1:8000/payment-success/",
             cancel_url="http://127.0.0.1:8000/cancel/",
             customer_email=user.email,
         )
@@ -53,3 +54,5 @@ def create_checkout_session(request):
         return Response({"error": str(e)}, status=500)
 
 
+def payment_success(request):
+    return render(request, "payment_success.html")

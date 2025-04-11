@@ -1,10 +1,81 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Title</title>
-</head>
-<body>
+{% extends 'base.html' %}
 
-</body>
-</html>
+{% block title %}Inscription - MySoul{% endblock %}
+
+{% block content %}
+<div class="w-full max-w-md mx-auto mt-20 bg-white p-8 rounded-xl shadow-md animate-fade-in-up">
+
+    <h2 class="text-2xl font-bold mb-6 text-center text-green-700">Créer un compte MySoul</h2>
+
+    <form id="register-form" class="space-y-6">
+        <div>
+            <label for="username" class="block text-sm font-medium text-green-800">Nom d'utilisateur</label>
+            <input type="text" id="username" name="username" required
+                   class="mt-1 block w-full border border-green-300 rounded-md p-2 shadow-sm focus:ring-green-400 focus:border-green-400">
+        </div>
+
+        <div>
+            <label for="email" class="block text-sm font-medium text-green-800">Email</label>
+            <input type="email" id="email" name="email" required
+                   class="mt-1 block w-full border border-green-300 rounded-md p-2 shadow-sm focus:ring-green-400 focus:border-green-400">
+        </div>
+
+        <div>
+            <label for="password" class="block text-sm font-medium text-green-800">Mot de passe</label>
+            <input type="password" id="password" name="password" required
+                   class="mt-1 block w-full border border-green-300 rounded-md p-2 shadow-sm focus:ring-green-400 focus:border-green-400">
+        </div>
+
+        <button type="submit"
+                class="w-full bg-green-500 hover:bg-green-600 text-white py-2 px-4 rounded-lg transition">
+            S'inscrire
+        </button>
+    </form>
+
+    <div id="register-error" class="text-red-600 mt-4 hidden text-sm text-center">
+        Une erreur est survenue. Veuillez vérifier vos informations.
+    </div>
+    <div id="register-success" class="text-green-600 mt-4 hidden text-sm text-center">
+        Compte créé avec succès ! Redirection...
+    </div>
+
+    <p class="mt-6 text-center text-sm text-green-800">
+        Déjà inscrit ?
+        <a href="{% url 'login' %}" class="underline hover:text-green-600 transition">Se connecter</a>
+    </p>
+</div>
+
+<script>
+    document.getElementById("register-form").addEventListener("submit", async function(e) {
+        e.preventDefault();
+
+        const username = e.target.username.value;
+        const email = e.target.email.value;
+        const password = e.target.password.value;
+
+        const response = await fetch("/api/accounts/register/", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "X-CSRFToken": document.querySelector('meta[name="csrf-token"]').content
+            },
+            body: JSON.stringify({ username, email, password })
+        });
+
+        const errorDiv = document.getElementById("register-error");
+        const successDiv = document.getElementById("register-success");
+
+        if (response.ok) {
+            errorDiv.classList.add("hidden");
+            successDiv.classList.remove("hidden");
+            setTimeout(() => {
+                window.location.href = "/login/";
+            }, 1500);
+        } else {
+            successDiv.classList.add("hidden");
+            errorDiv.classList.remove("hidden");
+        }
+    });
+</script>
+{% endblock %}
+
