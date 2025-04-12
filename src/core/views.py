@@ -1,11 +1,15 @@
+from django.contrib import messages
+from django.contrib.auth import logout, authenticate, login
+from django.contrib.auth.models import User
 from django.db.models import Avg
-from django.http import HttpResponse, JsonResponse
+from django.http import JsonResponse
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.http import require_http_methods
 
 from accounts.models import Profile
 from challenges.forms import ChallengeForm
+from journal.forms import JournalEntryForm
 from journal.models import JournalEntry
 from challenges.models import Challenge
 
@@ -152,4 +156,77 @@ def deactivate_account(request):
     user.save()
     return redirect("login")
 
+@login_required
+def journal_view(request):
+    entries = JournalEntry.objects.filter(user=request.user).order_by('-date')
+    return render(request, "journal.html", {"entries": entries})
 
+def login_view(request):
+    if request.method == "POST":
+        username = request.POST.get("username")
+        password = request.POST.get("password")
+        user = authenticate(request, username=username, password=password)
+
+        if user is not None:
+            login(request, user)
+            next_url = request.GET.get("next") or "dashboard"
+            return redirect(next_url)
+        else:
+            messages.error(request, "Identifiants invalides")
+
+    return render(request, "login.html")
+
+def logout_view(request):
+    logout(request)
+    return redirect('home')
+
+
+
+@login_required
+def journal_view(request):
+    entries = JournalEntry.objects.filter(user=request.user).order_by('-date')
+
+    if request.method == 'POST':
+        form = JournalEntryForm(request.POST)
+        if form.is_valid():
+            entry = form.save(commit=False)
+            entry.user = request.user
+            entry.save()
+            return redirect('journal')
+    else:
+        form = JournalEntryForm()
+
+    return render(request, "journal.html", {
+        "entries": entries,
+        "form": form,
+    })
+
+def register_view(request):
+    if request.method == "POST":
+        username = request.POST.get("username")
+        email = request.POST.get("email")
+        password = request.POST.get("password")
+        confirm_password = request.POST.get("confirm_password")
+
+        if password != confirm_password:
+            messages.error(request, "Les mots de passe ne correspondent pas.")
+            return render(request, "register.html")
+
+        if User.objects.filter(username=username).exists():
+            messages.error(request, "Ce nom d'utilisateur est déjà pris.")
+            return render(request, "register.html")
+
+        if User.objects.filter(email=email).exists():
+            messages.error(request, "Cet email est déjà utilisé.")
+            return render(request, "register.html")
+
+        user = User.objects.create_user(username=username, email=email, password=password)
+
+        # 👉 FORCEMENT du backend car Django a plusieurs backends
+        user.backend = 'django.contrib.auth.backends.ModelBackend'
+        login(request, user)
+
+        next_url = request.GET.get("next") or "dashboard"
+        return redirect(next_url)
+
+    return render(request, "register.html")

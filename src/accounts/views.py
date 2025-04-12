@@ -2,7 +2,7 @@ from django.contrib.auth.tokens import default_token_generator
 from django.contrib.auth.models import User
 from rest_framework import generics, viewsets, permissions
 from rest_framework.decorators import action
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.parsers import MultiPartParser, FormParser
@@ -40,6 +40,7 @@ class PasswordResetConfirmView(generics.GenericAPIView):
 class UserRegisterView(generics.CreateAPIView):
     queryset = User.objects.all().order_by("id")
     serializer_class = UserRegisterSerializer
+    permission_classes = [AllowAny]
 
 class AdminChallengeViewSet(viewsets.ModelViewSet):
     """

@@ -7,23 +7,47 @@
 
     <h2 class="text-2xl font-bold mb-6 text-center text-green-700">Créer un compte MySoul</h2>
 
-    <form id="register-form" class="space-y-6">
+    <form method="POST" id="register-form" class="space-y-6">
+        {% csrf_token %}
+        {% if messages %}
+            {% for message in messages %}
+                <div class="text-red-600 text-sm text-center">{{ message }}</div>
+            {% endfor %}
+        {% endif %}
+
         <div>
             <label for="username" class="block text-sm font-medium text-green-800">Nom d'utilisateur</label>
             <input type="text" id="username" name="username" required
-                   class="mt-1 block w-full border border-green-300 rounded-md p-2 shadow-sm focus:ring-green-400 focus:border-green-400">
+                   class="mt-1 block w-full border border-green-300 rounded-md p-2 shadow-sm">
         </div>
 
         <div>
             <label for="email" class="block text-sm font-medium text-green-800">Email</label>
             <input type="email" id="email" name="email" required
-                   class="mt-1 block w-full border border-green-300 rounded-md p-2 shadow-sm focus:ring-green-400 focus:border-green-400">
+                   class="mt-1 block w-full border border-green-300 rounded-md p-2 shadow-sm">
         </div>
 
         <div>
             <label for="password" class="block text-sm font-medium text-green-800">Mot de passe</label>
             <input type="password" id="password" name="password" required
-                   class="mt-1 block w-full border border-green-300 rounded-md p-2 shadow-sm focus:ring-green-400 focus:border-green-400">
+                   class="mt-1 block w-full border border-green-300 rounded-md p-2 shadow-sm">
+        </div>
+
+        <div>
+            <label for="confirm_password" class="block text-sm font-medium text-green-800">Confirmer le mot de passe</label>
+            <input type="password" id="confirm_password" name="confirm_password" required
+                   class="mt-1 block w-full border border-green-300 rounded-md p-2 shadow-sm">
+        </div>
+
+        <!-- Afficher / masquer -->
+        <div class="text-right">
+            <button type="button" onclick="togglePasswordVisibility()" class="text-sm text-green-700 hover:underline">
+                Afficher / masquer les mots de passe
+            </button>
+        </div>
+
+        <div id="password-error" class="text-red-600 text-sm text-center hidden">
+            Les mots de passe ne correspondent pas.
         </div>
 
         <button type="submit"
@@ -32,13 +56,6 @@
         </button>
     </form>
 
-    <div id="register-error" class="text-red-600 mt-4 hidden text-sm text-center">
-        Une erreur est survenue. Veuillez vérifier vos informations.
-    </div>
-    <div id="register-success" class="text-green-600 mt-4 hidden text-sm text-center">
-        Compte créé avec succès ! Redirection...
-    </div>
-
     <p class="mt-6 text-center text-sm text-green-800">
         Déjà inscrit ?
         <a href="{% url 'login' %}" class="underline hover:text-green-600 transition">Se connecter</a>
@@ -46,36 +63,30 @@
 </div>
 
 <script>
-    document.getElementById("register-form").addEventListener("submit", async function(e) {
-        e.preventDefault();
+    function togglePasswordVisibility() {
+        const pwd = document.getElementById("password");
+        const confirm = document.getElementById("confirm_password");
+        pwd.type = pwd.type === "password" ? "text" : "password";
+        confirm.type = confirm.type === "password" ? "text" : "password";
+    }
 
-        const username = e.target.username.value;
-        const email = e.target.email.value;
-        const password = e.target.password.value;
+    document.getElementById("register-form").addEventListener("submit", function(e) {
+        const pwd = document.getElementById("password").value;
+        const confirm = document.getElementById("confirm_password").value;
+        const error = document.getElementById("password-error");
 
-        const response = await fetch("/api/accounts/register/", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-                "X-CSRFToken": document.querySelector('meta[name="csrf-token"]').content
-            },
-            body: JSON.stringify({ username, email, password })
-        });
-
-        const errorDiv = document.getElementById("register-error");
-        const successDiv = document.getElementById("register-success");
-
-        if (response.ok) {
-            errorDiv.classList.add("hidden");
-            successDiv.classList.remove("hidden");
-            setTimeout(() => {
-                window.location.href = "/login/";
-            }, 1500);
+        if (pwd !== confirm) {
+            e.preventDefault();
+            error.classList.remove("hidden");
         } else {
-            successDiv.classList.add("hidden");
-            errorDiv.classList.remove("hidden");
+            error.classList.add("hidden");
         }
     });
 </script>
 {% endblock %}
+
+
+
+
+
 

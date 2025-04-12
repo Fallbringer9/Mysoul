@@ -6,7 +6,7 @@ from django.dispatch import receiver
 from django.utils.timezone import now
 
 
-# Create your models here.
+# Create your models here.from
 
 class UserProfile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
